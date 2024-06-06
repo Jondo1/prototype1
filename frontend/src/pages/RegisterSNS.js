@@ -15,7 +15,7 @@ const RegisterSNS = () => {
         setSuccess('');
 
         try {
-            const response = await axios.post('http://localhost:5000/sns/register', { sns, username, password });
+            const response = await axios.post('/sns/register', { sns, username, password });
             setSuccess(response.data.message);
         } catch (err) {
             if (err.response && err.response.data && err.response.data.error) {

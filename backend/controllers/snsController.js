@@ -1,9 +1,5 @@
 const { Builder, By, until } = require('selenium-webdriver');
-const chrome = require('selenium-webdriver/chrome');
 const User = require('../models/User');
-
-const chromeOptions = new chrome.Options();
-chromeOptions.addArguments('--headless'); // ヘッドレスモードで実行
 
 const snsLogin = async (sns, username, password) => {
     let driver;
@@ -16,7 +12,6 @@ const snsLogin = async (sns, username, password) => {
                 await driver.findElement(By.name('username')).sendKeys(username);
                 await driver.findElement(By.name('password')).sendKeys(password);
                 await driver.findElement(By.css('button[type="submit"]')).click();
-                await driver.wait(until.elementLocated(By.css('nav')), 10000); // Instagramのホーム画面の一部を確認
                 break;
             case 'youtube':
                 await driver.get('https://accounts.google.com/ServiceLogin');
@@ -25,19 +20,18 @@ const snsLogin = async (sns, username, password) => {
                 await driver.wait(until.elementLocated(By.name('password')), 10000);
                 await driver.findElement(By.name('password')).sendKeys(password);
                 await driver.findElement(By.id('passwordNext')).click();
-                await driver.wait(until.elementLocated(By.css('a[title="YouTube"]')), 10000); // YouTubeの一部を確認
                 break;
             case 'tiktok':
                 await driver.get('https://www.tiktok.com/login');
                 await driver.findElement(By.name('username')).sendKeys(username);
                 await driver.findElement(By.name('password')).sendKeys(password);
                 await driver.findElement(By.css('button[type="submit"]')).click();
-                await driver.wait(until.elementLocated(By.css('header')), 10000); // TikTokのホーム画面の一部を確認
                 break;
             default:
                 throw new Error('Unsupported SNS');
         }
 
+        await driver.wait(until.elementLocated(By.css('nav')), 10000);
         return true;
     } catch (err) {
         console.error('SNS Login Error:', err);
@@ -69,6 +63,7 @@ const registerSNS = async (req, res) => {
         res.status(500).send({ error: 'Server error' });
     }
 };
+
 const getSNSAccounts = async (req, res) => {
     try {
         const user = await User.findById(req.userId);
@@ -93,4 +88,3 @@ const deleteSNSAccount = async (req, res) => {
 };
 
 module.exports = { registerSNS, getSNSAccounts, deleteSNSAccount };
-
